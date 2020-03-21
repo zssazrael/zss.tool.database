@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbutils.DbUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,28 +17,45 @@ import zss.tool.LoggedException;
 import zss.tool.StringTool;
 import zss.tool.Version;
 
-@Version("2015-12-10")
-public class DatabaseTool
-{
+@Version("2020.03.21")
+public class DatabaseTool {
     private static final Logger LOGGER = LoggerFactory.getLogger(DatabaseTool.class);
 
-    public static String[] getColumnLabels(final ResultSet resultSet)
-    {
-        try
-        {
+    public static String[] getColumnLabelArray(final ResultSet resultSet) {
+        try {
             final ResultSetMetaData metaData = resultSet.getMetaData();
-            final int count = metaData.getColumnCount();
-            final String[] names = new String[count];
-            for (int i = 0; i < count; i++)
-            {
-                names[i] = StringTool.toUpperCase(metaData.getColumnLabel(i + 1));
-            }
-            return names;
-        }
-        catch (SQLException e)
-        {
+            return getColumnLabelArray(metaData);
+        } catch (SQLException e) {
             LOGGER.error(e.getMessage(), e);
-            throw new LoggedException(DatabaseTool.class);
+            throw new LoggedException(e.getMessage());
+        }
+    }
+
+    public static String[] getColumnLabelArray(final ResultSetMetaData metaData) {
+        try {
+            final int count = metaData.getColumnCount();
+            final String[] columnLabelArray = new String[count];
+            for (int i = 0; i < count; i++) {
+                columnLabelArray[i] = getColumnLabel(metaData, i + 1);
+            }
+            return columnLabelArray;
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new LoggedException(e.getMessage());
+        }
+    }
+
+    public static String getColumnLabel(final ResultSetMetaData metaData, final int column) {
+        try {
+            String columnName = metaData.getColumnLabel(column);
+            if (StringUtils.isNotEmpty(columnName)) {
+                return StringTool.toLowerCase(columnName);
+            }
+            columnName = metaData.getColumnName(column);
+            return StringTool.toLowerCase(columnName);
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new LoggedException(e.getMessage());
         }
     }
 
@@ -117,7 +135,7 @@ public class DatabaseTool
     {
         try
         {
-            final String[] labels = getColumnLabels(resultSet);
+            final String[] labels = getColumnLabelArray(resultSet);
             final Table table = new Table();
             while (resultSet.next())
             {

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="zss.tool.database.update.Updater" targetNamespace="zss.tool.database.update.Updater">
+    <element name="Database">
+        <complexType>
+            <sequence>
+                <element ref="tns:Table" maxOccurs="unbounded" minOccurs="0" />
+            </sequence>
+        </complexType>
+    </element>
+    <element name="Table">
+        <complexType>
+            <sequence>
+                <element ref="tns:Column" maxOccurs="unbounded" minOccurs="1" />
+            </sequence>
+            <attribute name="name" type="string" use="required" />
+        </complexType>
+    </element>
+    <element name="Column">
+        <complexType>
+            <attribute name="name" type="string" use="required" />
+            <attribute name="type" type="string" use="required" />
+            <attribute name="length" type="long" use="optional" />
+        </complexType>
+    </element>
+</schema>
